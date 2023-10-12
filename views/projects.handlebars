@@ -1,0 +1,13 @@
+<div id="main">
+    <div>
+        <h1>List of all projects</h1>
+        {{#each projects}}
+            <div class="project">
+                <h2>{{pname}}</h2>
+                <a href="/projects/{{pid}}">View Details</a>                
+                <img src="{{pimgURL}}" alt="{{pname}}">                
+                <p>{{pdesc}}</p>                
+            </div>
+        {{/each}}
+    </div>
+</div>
