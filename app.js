@@ -4,6 +4,7 @@ const sqlite3 = require('sqlite3');
 const db = new sqlite3.Database('portfolio-alh.db');
 const port = 8080; // defines the port
 const app = express(); // creates the Express application
+const bodyParser = require('body-parser')
 
 // defines handlebars engine
 app.engine('handlebars', engine());
@@ -12,8 +13,17 @@ app.set('view engine', 'handlebars');
 // defines the views directory
 app.set('views', './views');
 
+
+//MIDDLEWARES
+
 // define static directory "public" to access css/ and img/
 app.use(express.static('public'))
+
+//POST Forms
+
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+
 
 // creates table projects at startup
 db.run(
@@ -222,8 +232,26 @@ app.get('/skills', function (request, response) {
   });
 });
 
+//renders the login page
+app.get('/login', (req, res) => {
+  const model={}
+  res.render('login.handlebars', model);
+});
 
 
+//check the login and password of a user
+app.post('/login', (req, res) => {
+  const un = req.body.un
+  const pw = req.body.pw
+
+  if (un=="amandaliljahr" && pw=="1234") {
+    console.log("amandaliljahr is logged in!")
+    res.redirect('/')
+  } else {
+    console.log('Bad user and/or bad password')
+    res.redirect('/login')
+  }
+})
 
 // defines the final default route 404 NOT FOUND
 app.use(function(req,res){
