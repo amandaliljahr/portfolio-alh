@@ -1,25 +1,32 @@
 <div id="main">
     <h1>About</h1>
     <div>Age: 21</div>
-    <div>Hobbies: My two passions in life are animals and singing, so I am invested in rescuing homeless cats and spend a lot of my free time singing. Sports I enjoy are padel and golf.</div>
+    <div>Hobbies: My two passions in life are animals and singing, so I am invested in rescuing homeless cats and spend a lot of my free time singing. Sports I enjoy are padel and golf.</div>    
+    
+    <h2>My skills</h2>
+    {{#each about.skills}}
+        <div class="skills">
+            <h3>{{sname}}</h3>
+            <div>{{stype}}</div>
+            <p>{{sdesc}}</p>
+        </div>
+    {{/each}}
 
-    <h2>Education</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Course Name</th>
-                <th>Credits</th>
-                <th>Description</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{#each courses}}
-                <tr>
-                    <td>{{cname}}</td>
-                    <td>{{ccredits}}</td>
-                    <td>{{cdesc}}</td>
-                </tr>
-            {{/each}}
-        </tbody>
-    </table>
+    <h2>My education</h2>
+    {{#each about.courses}}
+        <div class="education">
+            <h3>{{cname}}</h3>
+            <div>{{ccredits}}</div>
+            <p>{{cdesc}}</p>
+        </div>
+    {{/each}}
+
+    <h2>My work experience</h2>
+    {{#each about.workExperience}}
+        <div class="workExperience">
+            <div>{{wyear}}</div>
+            <div>{{wposition}}</div>
+            <div>{{wcompany}}</div>
+        </div>
+    {{/each}}
 </div>

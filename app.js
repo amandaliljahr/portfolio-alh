@@ -5,6 +5,9 @@ const db = new sqlite3.Database('portfolio-alh.db');
 const port = 8080; // defines the port
 const app = express(); // creates the Express application
 const bodyParser = require('body-parser')
+const session = require('express-session')
+const connectSqlite3 = require('connect-sqlite3')
+//const cookieParser = require('cookie-parser')
 
 // defines handlebars engine
 app.engine('handlebars', engine());
@@ -13,17 +16,34 @@ app.set('view engine', 'handlebars');
 // defines the views directory
 app.set('views', './views');
 
-
+//-----------
 //MIDDLEWARES
+//-----------
 
 // define static directory "public" to access css/ and img/
 app.use(express.static('public'))
 
+//----------
 //POST Forms
+//----------
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
+//-------
+//SESSION
+//-------
+
+// store sessions in the database
+const SQLiteStore = connectSqlite3(session)
+
+// define the session
+app.use(session({
+  store: new SQLiteStore({db: "session-db.db"}),
+  "saveUninitialized": false,
+  "resave": false,
+  "secret": "This123Is@Another#456GreatSecret678%Sentence"
+}));
 
 // creates table projects at startup
 db.run(
@@ -73,9 +93,6 @@ db.run(
         }
       ];
 
-
-
-
       // inserts projects
       projects.forEach((oneProject) => {
         db.run(
@@ -93,6 +110,7 @@ db.run(
     }
   }
 );
+
 
 // creates skills projects at startup
 db.run(
@@ -113,7 +131,6 @@ db.run(
         {"id": "6", "name": "Express", "type": "Framework", "desc": "A framework for programming Javascript on the server side."},
       ];
 
-
       // inserts skills
       skills.forEach((oneSkill) => {
         db.run(
@@ -131,6 +148,7 @@ db.run(
     }
   }
 );
+
 
 db.run(
   "CREATE TABLE IF NOT EXISTS courses (cid INTEGER PRIMARY KEY, cname TEXT NOT NULL, ccredits TEXT NOT NULL, cdesc TEXT NOT NULL)",
@@ -152,7 +170,6 @@ db.run(
         {"id": "8", "name": "Single Variable Calculus", "credits": "9hp", "desc": "The course aims to provide basic knowledge of differential and integral calculus in a real variable and to enhance the ability to follow and conduct logical and mathematical reasoning using the language and symbolism of mathematics. This, in turn, creates the conditions for mathematical treatment of technical problems in professional practice"}
       ];
 
-
       // inserts courses
       courses.forEach((oneCourse) => {
         db.run(
@@ -170,27 +187,137 @@ db.run(
     }
   }
 );
-    
+
+
+// creates table workExperience at startup
+db.run(
+  "CREATE TABLE IF NOT EXISTS workExperience (wid INTEGER PRIMARY KEY, wyear TEXT NOT NULL, wposition TEXT NOT NULL, wcompany TEXT NOT NULL)",
+  (error) => {
+    if (error) {
+      // tests error: display error
+      console.log("ERROR: ", error);
+    } else {
+      // tests error: no error, the table has been created
+      console.log("---> Table workExperience created!");
+      const workExperience = [
+        {
+          "id": "1",
+          "year": "2020-now",
+          "position": "Chef and restaurant assistant",
+          "company": "VIP Mullsjö, Mullsjö",
+        },
+        {
+          "id": "2",
+          "year": "2017-2020",
+          "position": "Restaurant assistant",
+          "company": "Jensens Böfhus, Jönköping",
+        },
+        {
+          "id": "3",
+          "year": "2018",
+          "position": "Restaurant trainee",
+          "company": "Pizza Hut, Jönköping",
+        },
+        {
+          "id": "4",
+          "year": "2016",
+          "position": "Kindergarten intern",
+          "company": "Rosengårds förskola, Norrahammar",
+        },
+        {
+          "id": "5",
+          "year": "2015-2016",
+          "position": "Cleaner",
+          "company": "DreamClean, Jönköping",
+        }
+      ];
+
+      // inserts workExperience
+      workExperience.forEach((oneWorkExperience) => {
+        db.run(
+          "INSERT INTO workExperience (wid, wyear, wposition, wcompany) VALUES (?, ?, ?, ?)",
+          [oneWorkExperience.id, oneWorkExperience.year, oneWorkExperience.position, oneWorkExperience.company],
+          (error) => {
+            if (error) {
+              console.log("ERROR: ", error);
+            } else {
+              console.log("Line added into the work experience table!");
+            }
+          }
+        );
+      });
+    }
+  }
+);
+
+
 // CONTROLLER (THE BOSS)
 // defines route "/"
-app.get('/', function(request, response){
-  response.render('home.handlebars')
-})
+app.get('/', function(request, response) {
+  console.log("SESSION: ", request.session)
+  const model={
+    isLoggedIn: request.session.isLoggedIn,
+    name: request.session.name,
+    isAdmin: request.session.isAdmin
+  }
+  response.render('home.handlebars', model);
+});
 
-app.get('/contact', function(request, response){
-  response.render('contact.handlebars')
-})
+app.get('/contact', function(request, response) {
+  console.log("SESSION: ", request.session)
+  const model={
+    isLoggedIn: request.session.isLoggedIn,
+    name: request.session.name,
+    isAdmin: request.session.isAdmin
+  }
+  response.render('contact.handlebars', model);
+});
 
 app.get('/about', function (request, response) {
-  // Query courses data from the database
-  db.all('SELECT * FROM courses', function (err, courses) {
-      if (err) {
-          console.error(err);
-          response.status(500).send('Internal Server Error');
-      } else {
-          // Pass courses data to the "about.handlebars" template
-          response.render('about.handlebars', { courses });
+  let skills, courses, workExperience;
+
+  // Fetch skills from the database
+  db.all('SELECT * FROM skills', function (errSkills, skillsData) {
+    if (errSkills) {
+      console.error(errSkills);
+      response.status(500).send('Internal Server Error');
+      return;
+    }
+    skills = skillsData;
+
+    // Fetch education from the database
+    db.all('SELECT * FROM courses', function (errCourses, coursesData) {
+      if (errCourses) {
+        console.error(errCourses);
+        response.status(500).send('Internal Server Error');
+        return;
       }
+      courses = coursesData;
+
+      // Fetch workExperience from the database
+      db.all('SELECT * FROM workExperience', function (errWorkExp, workExpData) {
+        if (errWorkExp) {
+          console.error(errWorkExp);
+          response.status(500).send('Internal Server Error');
+          return;
+        }
+        workExperience = workExpData;
+
+        const model = {
+          isLoggedIn: request.session.isLoggedIn,
+          name: request.session.name,
+          isAdmin: request.session.isAdmin,
+          about: {
+            skills: skills,
+            courses: courses,
+            workExperience: workExperience
+          }
+        };
+
+        // Render the response after all queries are completed
+        response.render('about.handlebars', model);
+      });
+    });
   });
 });
 
@@ -200,7 +327,13 @@ app.get('/projects', function (request, response) {
           console.error(err);
           response.status(500).send('Internal Server Error');
       } else {
-          response.render('projects.handlebars', { projects });
+        const model = {
+          isLoggedIn: request.session.isLoggedIn,
+          name: request.session.name,
+          isAdmin: request.session.isAdmin,
+          projects: projects
+        };
+          response.render('projects.handlebars', model);
       }
   });
 });
@@ -212,25 +345,25 @@ app.get('/projects/:id', function (request, response) {
           console.error(err);
           response.status(500).send('Internal Server Error');
       } else if (!project) {
-          response.status(404).render('404.handlebars');
+        const model = {
+          isLoggedIn: request.session.isLoggedIn,
+          name: request.session.name,
+          isAdmin: request.session.isAdmin
+        };
+          response.status(404).render('404.handlebars', model);
       } else {
-          response.render('project.handlebars', project);
+        const model = {
+          isLoggedIn: request.session.isLoggedIn,
+          name: request.session.name,
+          isAdmin: request.session.isAdmin,
+          project: project
+        };
+          response.render('project.handlebars', model);
       }
   });
 });
 
-app.get('/skills', function (request, response) {
-  // Query skills data from the database
-  db.all('SELECT * FROM skills', function (err, skills) {
-      if (err) {
-          console.error(err);
-          response.status(500).send('Internal Server Error');
-      } else {
-          // Pass skills data to the "skills.handlebars" template
-          response.render('skills.handlebars', { skills });
-      }
-  });
-});
+
 
 //renders the login page
 app.get('/login', (req, res) => {
@@ -244,11 +377,17 @@ app.post('/login', (req, res) => {
   const un = req.body.un
   const pw = req.body.pw
 
-  if (un=="amandaliljahr" && pw=="1234") {
+  if(un=="amandaliljahr" && pw=="1234") {
     console.log("amandaliljahr is logged in!")
+    req.session.isAdmin = true
+    req.session.isLoggedIn = true
+    req.session.name = "Amanda"
     res.redirect('/')
   } else {
     console.log('Bad user and/or bad password')
+    req.session.isAdmin = false
+    req.session.isLoggedIn = false
+    req.session.name = ""
     res.redirect('/login')
   }
 })
