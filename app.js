@@ -1,49 +1,17 @@
 const express = require('express'); // loads the express package
 const { engine } = require('express-handlebars'); // loads handlebars for Express
-const sqlite3 = require('sqlite3');
-const db = new sqlite3.Database('portfolio-alh.db');
 const port = 8080; // defines the port
 const app = express(); // creates the Express application
 const bodyParser = require('body-parser')
 const session = require('express-session')
 const connectSqlite3 = require('connect-sqlite3')
-//const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser')
 
-// defines handlebars engine
-app.engine('handlebars', engine());
-// defines the view engine to be handlebars
-app.set('view engine', 'handlebars');
-// defines the views directory
-app.set('views', './views');
 
-//-----------
-//MIDDLEWARES
-//-----------
+//MODEL (DATA)
+const sqlite3 = require('sqlite3');
+const db = new sqlite3.Database('portfolio-alh.db');
 
-// define static directory "public" to access css/ and img/
-app.use(express.static('public'))
-
-//----------
-//POST Forms
-//----------
-
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
-
-//-------
-//SESSION
-//-------
-
-// store sessions in the database
-const SQLiteStore = connectSqlite3(session)
-
-// define the session
-app.use(session({
-  store: new SQLiteStore({db: "session-db.db"}),
-  "saveUninitialized": false,
-  "resave": false,
-  "secret": "This123Is@Another#456GreatSecret678%Sentence"
-}));
 
 // creates table projects at startup
 db.run(
@@ -251,27 +219,77 @@ db.run(
 );
 
 
+//------------
+// SESSION
+
+// store sessions in the database
+const SQLiteStore = connectSqlite3(session)
+
+//define the session
+app.use(session({
+  store: new SQLiteStore({db: "session-db.db"}),
+  "saveUninitialized": false,
+  "resave": false,
+  "secret": "This123Is@Another#456GreatSecret678%Sentence"
+}));
+
+
+//----------
+//POST Forms
+//----------
+
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
+
+//check the login and password of a user
+app.post('/login', (req, res) => {
+  const un = req.body.un
+  const pw = req.body.pw
+
+  if(un=="amandaliljahr" && pw=="1234") {
+    console.log("amandaliljahr is logged in!")
+    req.session.isAdmin = true
+    req.session.isLoggedIn = true
+    req.session.name = "Amanda"
+    res.redirect('/')
+  } else {
+    console.log('Bad user and/or bad password')
+    req.session.isAdmin = false
+    req.session.isLoggedIn = false
+    req.session.name = ""
+    res.redirect('/login')
+  }
+})
+
+
+// defines handlebars engine
+app.engine('handlebars', engine());
+// defines the view engine to be handlebars
+app.set('view engine', 'handlebars');
+// defines the views directory
+app.set('views', './views');
+
+//-----------
+//MIDDLEWARES
+//-----------
+
+// define static directory "public" to access css/ and img/
+app.use(express.static('public'))
+
+
+
 // CONTROLLER (THE BOSS)
 // defines route "/"
-app.get('/', function(request, response) {
+app.get('/', function(request, response){
   console.log("SESSION: ", request.session)
   const model={
     isLoggedIn: request.session.isLoggedIn,
     name: request.session.name,
     isAdmin: request.session.isAdmin
   }
-  response.render('home.handlebars', model);
-});
+  response.render('home.handlebars', model)
+})
 
-app.get('/contact', function(request, response) {
-  console.log("SESSION: ", request.session)
-  const model={
-    isLoggedIn: request.session.isLoggedIn,
-    name: request.session.name,
-    isAdmin: request.session.isAdmin
-  }
-  response.render('contact.handlebars', model);
-});
 
 app.get('/about', function (request, response) {
   let skills, courses, workExperience;
@@ -321,22 +339,78 @@ app.get('/about', function (request, response) {
   });
 });
 
+
+// renders the /projects route view
 app.get('/projects', function (request, response) {
   db.all('SELECT * FROM projects', function (err, projects) {
       if (err) {
-          console.error(err);
-          response.status(500).send('Internal Server Error');
+        const model = {
+          dbError: true,
+          theError: err,
+          projects: [],
+          isLoggedIn: request.session.isLoggedIn,
+          name: request.session.isAdmin,
+        }
+
+        //renders the page with the  model
+        response.render("projects.handlebars", model)
       } else {
         const model = {
+          dbError: false,
+          theError: "",
           isLoggedIn: request.session.isLoggedIn,
           name: request.session.name,
           isAdmin: request.session.isAdmin,
-          projects: projects
-        };
-          response.render('projects.handlebars', model);
+          projects: projects  // Include the projects data in the model
+        }
+        response.render("projects.handlebars", model)
       }
   });
 });
+
+app.get('/contact', function(request, response) {
+  console.log("SESSION: ", request.session)
+  const model={
+    isLoggedIn: request.session.isLoggedIn,
+    name: request.session.name,
+    isAdmin: request.session.isAdmin
+  }
+  response.render('contact.handlebars', model);
+});
+
+// sends the form for a new project
+app.get('/projects/new', (req, res) => {
+  if(req.session.isLoggedIn==true && req.session.isAdmin==true) {
+    const model = {
+      isLoggedIn: req.session.isLoggedIn,
+      name: req.session.name,
+      isAdmin: req.session.isAdmin,
+    }
+    res.render('newproject.handlebars', model)
+  } else {
+    res.redirect('/login')
+  }
+});
+
+// creates a new project
+app.post('/projects/new', (req, res) => {
+  const newp = [
+    req.body.projname, req.body.projyear, req.body.projdesc, req.body.projimg,
+  ]
+  if (req.session.isLoggedIn==true && req.session.isAdmin==true) {
+    db.run("INSERT INTO projects (pname, pyear, pdesc, pimgURL) VALUES (?, ?, ?, ?)", newp, (error) =>{
+      if (error) {
+        console.log("ERROR: ", error)
+      } else {
+        console.log("Line added into the projects table!")
+      }
+      res.redirect('/projects')
+    })
+  } else {
+    res.redirect('/login')
+  }
+});
+
 
 app.get('/projects/:id', function (request, response) {
   const id = request.params.id;
@@ -364,33 +438,102 @@ app.get('/projects/:id', function (request, response) {
 });
 
 
-
 //renders the login page
-app.get('/login', (req, res) => {
-  const model={}
+app.get('/login', (req, res) =>{
+  const model={
+    isLoggedIn: req.session.isLoggedIn,
+    name: req.session.name,
+    isAdmin: req.session.isAdmin
+  }
   res.render('login.handlebars', model);
 });
 
-
-//check the login and password of a user
-app.post('/login', (req, res) => {
-  const un = req.body.un
-  const pw = req.body.pw
-
-  if(un=="amandaliljahr" && pw=="1234") {
-    console.log("amandaliljahr is logged in!")
-    req.session.isAdmin = true
-    req.session.isLoggedIn = true
-    req.session.name = "Amanda"
-    res.redirect('/')
+// deletes a project
+app.get('/projects/delete/:id', (req, res) => {
+  const id = req.params.id
+  if (req.session.isLoggedIn==true && req.session.isAdmin==true){
+    db.run("DELETE FROM projects WHERE pid=?", [id], function (error, projects) {
+      if (error) {
+        const model = { dbError: true, theError: error,
+          isLoggedIn: req.session.isLoggedIn,
+          name: req.session.name,
+          isAdmin: req.session.isAdmin,
+        }
+        res.render("home.handlebars", model) // renders the page with the model
+      } else {
+        const model = { dbError: false, theError: "",
+          isLoggedIn: req.session.isLoggedIn,
+          name: req.session.name,
+          isAdmin: req.session.isAdmin,
+        }
+        res.render("home.handlebars", model) // renders the page with the model
+      }
+    })
   } else {
-    console.log('Bad user and/or bad password')
-    req.session.isAdmin = false
-    req.session.isLoggedIn = false
-    req.session.name = ""
+    res.redirect('/login')
+  }
+});
+
+
+app.get('/projects/update/:id', (req, res) => {
+  const id = req.params.id
+  //console.log("UPDATE: ", id)
+  db.get("SELECT * FROM projects WHERE pid=?", [id], function (error, theProject) {
+    if (error) {
+      console.log("ERROR: ", error)
+      const model = {dbError: true, theError: error,
+      project: {},
+      isLoggedIn: req.session.isLoggedIn,
+      name: req.session.name,
+      isAdmin: req.session.isAdmin,
+      }
+      //renders the page with the model
+      res.render("modifyproject.handlebars", model)
+    }
+    else {
+      //console.log("MODIFY: ", JSON.stringify(theProject))
+      //console.log("MODIFY: ", theProject)
+      const model = { dbError: false, theError: "",
+      project: theProject,
+      isLoggedIn: req.session.isLoggedIn,
+      name: req.session.name, 
+      isAdmin: req.session.isAdmin, 
+    }
+    // renders the page with the model
+    res.render("modifyproject.handlebars", model)
+
+    }
+  })
+});
+
+//modify existing project
+app.post('/projects/update/:id', (req, res) => {
+  const id= req.params.id
+  const newp = [
+    req.body.projname, req.body.projyear, req.body.projdesc, req.body.projimg, id
+  ]
+  if (req.session.isLoggedIn==true && req.session.isAdmin==true) {
+    db.run("UPDATE projects SET pname=?, pyear=?, pdesc=?, pimgURL=? WHERE pid=?", newp, (error) => {
+      if (error) {
+        console.log("ERROR: ", error)
+      } else {
+        console.log("Project updated!")
+      }
+      res.redirect('/projects')
+    })
+  } else {
     res.redirect('/login')
   }
 })
+
+app.get('/logout', (req, res) => {
+  req.session.destroy( (err) => {
+    console.log("Error while destroying the session: ", err)
+  })
+  console.log('Logged out...')
+  res.redirect('/')
+})
+
 
 // defines the final default route 404 NOT FOUND
 app.use(function(req,res){

@@ -1,13 +1,32 @@
 <div id="main">
-    <div>
-        <h1>List of all projects</h1>
-        {{#each projects}}
-            <div class="project">
-                <h2>{{pname}}</h2>
-                <a href="/projects/{{pid}}">View Details</a>                
-                <img src="{{pimgURL}}" alt="{{pname}}">                
-                <p>{{pdesc}}</p>                
+    <div class="container">
+        <h1>List of my projects</h1>
+
+        {{#if isAdmin}}
+            <div>
+                <a href="/projects/new"> New project </a>
             </div>
-        {{/each}}
+        {{/if}}
+
+        {{#if dbError}}
+            <div>
+                Sorry, there was e problem with the database: <br />
+                {{theError}}
+            </div>
+        {{else}}
+            {{#each projects}}
+                <div class="project">
+                    <h2>{{pname}}</h2>
+                    <a href="/projects/{{pid}}">View Details</a>                
+                    <img src="{{pimgURL}}" alt="{{pname}}">                
+                    <p>{{pdesc}}</p>
+                        {{#if ../isAdmin}}
+                            <div>
+                                <a href="/projects/update/{{pid}}"> Modify </a> - <a href="/projects/delete/{{pid}}"> Delete </a>
+                            </div>
+                        {{/if}}
+                </div>
+            {{/each}}
+        {{/if}}
     </div>
 </div>
