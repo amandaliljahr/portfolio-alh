@@ -6,6 +6,7 @@ const bodyParser = require('body-parser')
 const session = require('express-session')
 const connectSqlite3 = require('connect-sqlite3')
 const cookieParser = require('cookie-parser')
+const bcrypt = require('bcrypt')
 
 
 //MODEL (DATA)
@@ -246,20 +247,26 @@ app.post('/login', (req, res) => {
   const un = req.body.un
   const pw = req.body.pw
 
-  if(un=="amandaliljahr" && pw=="1234") {
-    console.log("amandaliljahr is logged in!")
-    req.session.isAdmin = true
-    req.session.isLoggedIn = true
-    req.session.name = "Amanda"
-    res.redirect('/')
-  } else {
-    console.log('Bad user and/or bad password')
-    req.session.isAdmin = false
-    req.session.isLoggedIn = false
-    req.session.name = ""
-    res.redirect('/login')
-  }
-})
+  const user = {
+    username: "amandaliljahr",
+    hashedPassword: "$2b$12$246PzV48FTwOwS4vSX6H2.IYxfZHOh0j/cgiDkU7gXcIIfyqTFC/a",
+  };
+
+  bcrypt.compare(pw, user.hashedPassword, function(err, result) {
+    if (err) {
+      console.log("Error in comparing encryption: ", err)
+    } else if (result) {
+      console.log("User is logged in!")
+      req.session.isAdmin = true
+      req.session.isLoggedIn = true
+      req.session.name = "Amanda"
+      res.redirect('/')
+    } else {
+      console.log("User is NOT logged in!")
+      res.redirect('/login')
+    }
+  })
+});
 
 
 // defines handlebars engine
@@ -282,6 +289,16 @@ app.use(express.static('public'))
 // defines route "/"
 app.get('/', function(request, response){
   console.log("SESSION: ", request.session)
+
+  /*saltRounds = 12
+  bcrypt.hash("liam22xo", saltRounds, function(err, hash) {
+    if (err) {
+      console.log("Error encrypting the password: ", err)
+    } else {
+      console.log("Hashed password (GENERATE only ONCE): ", hash)
+    }
+  });*/
+
   const model={
     isLoggedIn: request.session.isLoggedIn,
     name: request.session.name,

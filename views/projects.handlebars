@@ -19,12 +19,11 @@
                     <h2>{{pname}}</h2>
                     <a href="/projects/{{pid}}">View Details</a>                
                     <img src="{{pimgURL}}" alt="{{pname}}">                
-                    <p>{{pdesc}}</p>
-                        {{#if ../isAdmin}}
-                            <div>
-                                <a href="/projects/update/{{pid}}"> Modify </a> - <a href="/projects/delete/{{pid}}"> Delete </a>
-                            </div>
-                        {{/if}}
+                    {{#if ../isAdmin}}
+                        <div>
+                            <a href="/projects/update/{{pid}}"> Modify </a> - <a href="/projects/delete/{{pid}}"> Delete </a>
+                        </div>
+                    {{/if}}
                 </div>
             {{/each}}
         {{/if}}
