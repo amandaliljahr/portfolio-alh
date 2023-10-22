@@ -378,7 +378,7 @@ app.get('/projects', function (request, response) {
           isLoggedIn: request.session.isLoggedIn,
           name: request.session.name,
           isAdmin: request.session.isAdmin,
-          projects: projects  // Include the projects data in the model
+          projects: projects  
         }
         response.render("projects.handlebars", model)
       }

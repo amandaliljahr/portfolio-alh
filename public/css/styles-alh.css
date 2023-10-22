@@ -1,16 +1,302 @@
+
 * {
     margin: 0;
     padding: 0;
-    font-family: sans-serif;
+    font-family: 'Times New Roman', Times, serif;
+    box-sizing: content-box;
+    background-color: rgb(183, 183, 183);
+}
+
+header {
+    background-image: url('/img/header.jpg'); 
+    background-size: cover;
+    background-position: center;
+    height: 310px; 
+    text-align: center;
+}
+
+body {
+    margin-top: 0px;
+    margin-left: 0%;
+    background-color: rgb(183, 183, 183);
+}
+
+.project {
+    border: 2px solid black; 
+    padding: 10px; 
+    margin: 10px; 
+    display: inline-block; 
+}
+
+.project img {
+    max-width: 100px; 
+    height: auto; 
+}
+
+.project a {
+    color: black; 
+    text-decoration: none; 
+    transition: color 0.3s; 
+}
+
+.project a:hover {
+    color: white; 
+}
+
+.new-proj a {
+    color: black; 
+    text-decoration: none; 
+    transition: color 0.3s;
+    border: 1px solid black;
+    padding: 5px;
+}
+
+.new-proj a:hover {
+    color: white;
+}
+
+.about-section {
+    border: 2px solid black; 
+    padding: 10px; 
+    margin: 10px 0; 
+}
+
+.skills-item, .education-item, .workExperience-item {
+    border: 1px solid black; 
+    padding: 10px; 
+    margin: 10px 0; 
+}
+
+.sname-border, .cname-border, .wyear-border {
+    border: 1px solid black; 
+    padding: 5px; 
+}
+
+.contact-info {
+    text-align: center; 
+    border: 2px solid black; 
+    padding: 20px;
+    max-width: 400px;
+    margin: 50px auto 0;
+}
+
+.contact-item {
+    border: 1px solid black;
+    margin: 10px 0; 
+    padding: 5px; 
+}
+
+.new-proj {
+    width: 90%;
+    margin: 0 auto;
+    text-align: center; 
     box-sizing: content-box;
 }
+
+form {
+    border: 2px solid black; 
+    padding: 20px; 
+    display: inline-block; 
+    text-align: left;
+}
+
+form label {
+    display: block; 
+    margin-top: 10px; 
+}
+
+form input,
+form textarea {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 10px; 
+}
+
+form input[type="submit"] {
+    margin-top: 10px; 
+}
+
+.project-info {
+    width: 90%;
+    margin: 0 auto;
+    text-align: center; 
+    box-sizing: content-box;
+}
+
+.project-info {
+    width: 90%;
+    margin: 0 auto;
+    text-align: center; 
+    box-sizing: content-box;
+}
+
+.project-info > div {
+    border: 2px solid rgb(183, 183, 183); 
+    padding: 20px; 
+    display: inline-block; 
+    text-align: left; 
+}
+
+.project-name {
+    margin: 10px 0;
+    border: 1px solid black;
+    padding: 5px;
+    text-align: center;
+}
+
+.project-image {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid black;
+    padding: 5px;
+}
+
+.project-desc {
+    margin: 10px 0;
+    border: 1px solid black;
+    padding: 5px;
+}
+
+.project-year {
+    margin: 10px 0;
+    border: 1px solid black;
+    padding: 5px;
+}
+
+.modify-proj {
+    width: 90%;
+    margin: 0 auto;
+    text-align: center;
+    box-sizing: content-box;
+}
+
+.modify-proj-container {
+    border: 2px solid rgb(183, 183, 183);
+    padding: 20px; 
+    display: inline-block; 
+    text-align: center;
+}
+
+.modify-proj-container h1 {
+    border: 1px solid black;
+    padding: 10px;
+}
+
+.update-form {
+    width: 80%;
+    margin: 0 auto; 
+}
+
+
+
 
 #main {
     width: 90%;
+    color: rgb(58, 51, 42);
     margin: 0 auto;
     margin-bottom: 96px;
-    margin-top: 32px;
+    margin-top: 0px;
     box-sizing: content-box;
-    /*border: 3px solid gray;*/
 }
 
+
+
+#menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+}
+
+#menu ul li {
+    margin: 0 10px;
+}
+
+#menu ul li a {
+    text-decoration: none;
+    color: #000000;
+    font-weight: bold;
+    font-size: 25px;
+    padding: 10px 20px;
+}
+
+#menu ul li a:hover {
+    color: #ffffff;
+}
+
+
+@media (max-width: 880px) {
+    #menu ul {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    #menu ul li {
+        margin: 10px 0;
+    }
+}
+
+
+.login-title {
+    text-align: center; 
+}
+
+.login-title h1 {
+    border: 2px solid rgb(183, 183, 183); 
+    padding: 10px; 
+    display: inline-block; 
+}
+
+.login-form {
+    margin: 0 auto; 
+    max-width: 300px;
+    text-align: center;
+}
+
+.login-form fieldset {
+    border: 2px solid black; 
+    padding: 10px; 
+}
+
+.login-form label {
+    display: block; 
+    margin-bottom: 10px; 
+}
+
+
+.login-form input[type="submit"] {
+    background-color: black; 
+    color: white; 
+    cursor: pointer; 
+    transition: background-color 0.3s; 
+}
+
+.login-form input[type="submit"]:hover {
+    background-color: white; 
+    color: black;
+}
+
+#home {
+    font-size: 70px;
+    text-align: center; 
+    line-height: 1.5; 
+    font-family: 'Times New Roman', Times, serif;
+}
+
+
+.toggle-checkbox {
+    display: none;
+}
+
+.toggle-label {
+    cursor: pointer;
+}
+
+.toggle-content {
+    display: none;
+}
+
+.toggle-checkbox:checked + .toggle-label + .toggle-content {
+    display: block;
+}

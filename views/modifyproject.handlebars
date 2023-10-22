@@ -1,10 +1,10 @@
-<div id="main">
-    <div>
-        <h1> Modify project </h1>
+<div class="modify-proj">
+    <div class="modify-proj-container">
+        <h1>Modify project</h1>
         <div>
             {{#if isLoggedIn}}
                 {{#if isAdmin}}
-                    <form action="/projects/update/{{project.pid}}" method="post">
+                    <form action="/projects/update/{{project.pid}}" method="post" class="update-form">
                         <fieldset>
                             <label for="projname">Project name: </label>
                             <input type="text" name="projname" id="projname" value="{{project.pname}}" required="required">
@@ -12,7 +12,7 @@
                             <label for="projyear">Project year: </label>
                             <input type="number" name="projyear" id="projyear" placeholder="2023" value="{{project.year}}" required="required">
                             <br />
-                            <textarea name="projdesc" id="projdesc" cols="30" rows="10" required="required">{{project.pdesc}}</textarea>
+                            <textarea name="projdesc" id="projdesc" cols="50" rows="10" required="required">{{project.pdesc}}</textarea>
                             <br />
                             <label for="projimg">Project img URL: </label>
                             <input type="text" name="projimg" id="projimg" placeholder="/img/" value="{{project.pimgURL}}" required="required">

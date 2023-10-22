@@ -1,32 +1,45 @@
 <div id="main">
-    <h1>About</h1>
-    <div>Age: 21</div>
-    <div>Hobbies: My two passions in life are animals and singing, so I am invested in rescuing homeless cats and spend a lot of my free time singing. Sports I enjoy are padel and golf.</div>    
+    <h1>About</h1> 
     
-    <h2>My skills</h2>
-    {{#each about.skills}}
-        <div class="skills">
-            <h3>{{sname}}</h3>
-            <div>{{stype}}</div>
-            <p>{{sdesc}}</p>
+    <div class="about-section"> 
+        <input type="checkbox" id="skills-toggle" class="toggle-checkbox">
+        <label for="skills-toggle" class="toggle-label">My skills</label>
+        <div class="toggle-content">
+            {{#each about.skills}}
+                <div class="skills-item">
+                    <h3 class="sname-border">{{sname}}</h3>
+                    <div>{{stype}}</div>
+                    <p>{{sdesc}}</p>
+                </div>
+            {{/each}}
         </div>
-    {{/each}}
+    </div> 
 
-    <h2>My education</h2>
-    {{#each about.courses}}
-        <div class="education">
-            <h3>{{cname}}</h3>
-            <div>{{ccredits}}</div>
-            <p>{{cdesc}}</p>
+    <div class="about-section"> 
+        <input type="checkbox" id="education-toggle" class="toggle-checkbox">
+        <label for="education-toggle" class="toggle-label">My education</label>
+        <div class="toggle-content">
+            {{#each about.courses}}
+                <div class="education-item">
+                    <h3 class="cname-border">{{cname}}</h3>
+                    <div>{{ccredits}}</div>
+                    <p>{{cdesc}}</p>
+                </div>
+            {{/each}}
         </div>
-    {{/each}}
+    </div> 
 
-    <h2>My work experience</h2>
-    {{#each about.workExperience}}
-        <div class="workExperience">
-            <div>{{wyear}}</div>
-            <div>{{wposition}}</div>
-            <div>{{wcompany}}</div>
+    <div class="about-section"> 
+        <input type="checkbox" id="work-experience-toggle" class="toggle-checkbox">
+        <label for="work-experience-toggle" class="toggle-label">My work experience</label>
+        <div class="toggle-content">
+            {{#each about.workExperience}}
+                <div class="workExperience-item">
+                    <div class="wyear-border">{{wyear}}</div>
+                    <div>{{wposition}}</div>
+                    <div>{{wcompany}}</div>
+                </div>
+            {{/each}}
         </div>
-    {{/each}}
+    </div>
 </div>

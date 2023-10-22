@@ -3,14 +3,14 @@
         <h1>List of my projects</h1>
 
         {{#if isAdmin}}
-            <div>
+            <div class="new-proj"> 
                 <a href="/projects/new"> New project </a>
             </div>
         {{/if}}
 
         {{#if dbError}}
             <div>
-                Sorry, there was e problem with the database: <br />
+                Sorry, there was an error with the database: <br />
                 {{theError}}
             </div>
         {{else}}
@@ -18,7 +18,7 @@
                 <div class="project">
                     <h2>{{pname}}</h2>
                     <a href="/projects/{{pid}}">View Details</a>                
-                    <img src="{{pimgURL}}" alt="{{pname}}">                
+                    <img src="{{pimgURL}}" alt="{{pname}}" class="project-image"> 
                     {{#if ../isAdmin}}
                         <div>
                             <a href="/projects/update/{{pid}}"> Modify </a> - <a href="/projects/delete/{{pid}}"> Delete </a>
